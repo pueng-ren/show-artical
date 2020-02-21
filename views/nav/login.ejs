@@ -1,0 +1,28 @@
+<div class="modal fade" id="login" role="dialog">
+  <div class="modal-dialog modal-login">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="avatar">
+					<img src="../public/image/avatar.png" alt="Avatar">
+				</div>				
+				<h4 class="modal-title">Member Login</h4>	
+			</div>
+			<div class="modal-body">
+				<form action="/login" method="post">
+					<div class="form-group">
+						<input type="text" class="form-control" name="username" id="username"  placeholder="Username" required="required">		
+					</div>
+					<div class="form-group">
+						<input type="password" class="form-control" name="password"  id="password" placeholder="Password" required="required">	
+					</div>        
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-lg btn-block login-btn">Login</button>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a href="/regis">create new account</a>
+			</div>
+		</div>
+	</div>
+  </div>

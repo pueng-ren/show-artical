@@ -1,0 +1,60 @@
+<div id="recommend" class="w3-container " style="padding-left: 10%;padding-right: 10%;margin-top: 5%;">
+  <% for(let i=0; i<artical.length; i++) {%>
+  <script>
+    function set_type(type) {
+      if (type == 'news') {
+        return 'ข่าวสาร'
+      } else if (type == 'normal') {
+        return 'บทความทั่วไป'
+      } else if (type == 'analysis') {
+        return 'บทความวิเคราะห์'
+      } else if (type == 'laws') {
+        return 'บทความกฎหมายเกี่ยวกับประกันภัย'
+      } else return 0
+    }
+    $(document).ready(function () {
+      document.getElementById("type_artical").innerHTML = set_type("<%= artical[i].type %>");
+
+    })
+
+  </script>
+  <div class="col-xs-12 col-sm-12  <%= artical[i].type %>  <%= artical[i].status %>" data-toggle="modal"
+    data-target="#myModal" id="<%= artical[i].status %>" name="<%= artical[i].status %>"
+    onclick="get_id_artical('<%= artical[i]._id %>')">
+    <div class="card" id="hide_seach">
+      <span style="display: none;">  <%= artical[i].title %></span> 
+
+      <a class="img-card">
+        <img src="<%= artical[i].img_pro %>" />
+      </a>
+
+      <br />
+      <div class="card-content">
+        <div>
+          <h3 class="card-title">
+
+            <%= artical[i].title %>
+            <% if(artical[i].recomment =='1') { %>
+            <i class="glyphicon glyphicon-star" style="color: #FFD355;"></i>
+            <% } %>
+          </h3>
+
+        </div>
+
+
+        <div class="">
+          <p style="color: lightgray;font-size: 13px"><span id="type_artical" name="type_artical"> </span>
+            <%= artical[i].date %></p>
+
+          <p style="font-size: 13px">เมื่อไหร่ก็ตามที่เศรษฐกิจเกิดสัญญาณว่ามันแย่ อารมณ์ความรู้สึกของคนก็จะเริ่ม...</p>
+        </div>
+      </div>
+      <div class="card-read-more">
+        <a class="btn btn-link btn-block">
+          Read More
+        </a>
+      </div>
+    </div>
+  </div>
+  <%  }%>
+</div>>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<% include ../head/head.ejs %>
+
+<body>
+  <!-- Navbar (sit on top) -->
+  <% include ../nav/nav.ejs %>
+  <div id="container" style="margin-top: 12%;">
+    <div class="row well shadow" style="padding: 3%;margin: 5%;background-color:#FFFFFF;">
+      <h2>ค้นหาบทความของฉัน</h2>
+      <div class="col-sm-12" style="padding-left: 10%;padding-right: 10%;margin-top: 2%;margin-bottom: 2%;">
+        <div class="col-sm-4">
+          <select class="form-control" id="search_artical" name="search_artical" onchange="select_artical()">
+            <option value="all">ทั้งหมด</option>
+            <option value="0">ยังไม่ได้เปิด</option>
+            <option value="1">เปิดแล้ว</option>
+
+          </select>
+        </div>
+       
+        <div class="col-sm-8">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search" oninput="w3.filterHTML('#recommend', '#hide_seach', this.value)">
+            <div class="input-group-btn">
+              <button class="btn btn-default" type="submit">
+                <i class="glyphicon glyphicon-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="w3-row" style="padding-left: 10%;padding-right: 10%">
+      <h3>บทความของฉันทั้งหมด</h3>
+    </div>
+
+    <% include ./mystory.ejs %>
+
+    <% include ./model.ejs %>
+
+  </div>
+
+  <!-- Footer -->
+  <% include ../head/foot.ejs %>
+
+  <script>
+    function get_id_artical(id) {
+      let id_artical = id;
+
+      $.ajax({
+        // Request method.
+        method: "POST",
+        // Request URL.
+        url: "/get_artical",
+        // Request params.
+        data: {
+          id_articals: id_artical
+        }
+      })
+        .done(function (data) {
+          let get_data = data
+          document.getElementById('id').value = get_data._id
+
+          document.getElementById('title').innerHTML = get_data.title
+          document.getElementById('sentence').innerHTML = get_data.body
+          searchPic = new Image();
+          
+          document.getElementById("img_page").src =  get_data.img_pro;
+
+          let recomment = get_data.recomment
+          let status = get_data.status
+
+          if (recomment == '0') {
+            document.getElementById('recomment').hidden = true
+          } else {
+            document.getElementById('recomment').hidden = false
+          }
+          document.getElementById('date_create').innerHTML = get_data.date
+
+          if(status=='0'){
+            $("#public").show();
+          }else{
+            $("#public").hide();
+          }
+        })
+        .fail(function (err) {
+          console.log('image delete problem: ' + JSON.stringify(err));
+        })
+    }
+
+    function select_artical() {
+      type_artical =document.getElementById('search_artical').value
+      alert(type_artical)
+      if(type_artical=="all" ){
+        $(".1").show();
+        $(".0").show();
+   
+      }else if(type_artical=="1" ){
+        $(".1").show();
+        $(".0").hide();
+       
+      }else if(type_artical=="0" ){
+
+        $(".1").hide();
+        $(".0").show();
+      }
+    }
+
+    $('.delete_artical').on('click', function(e){
+    $target = $(e.target);
+    const id = document.getElementById('id').value
+    console.log(id);
+    $.ajax({
+      type:'DELETE',
+      url: '/delete_artical/'+id,
+      success: function(response){
+        window.location.href='/mywrite';
+      },
+      error: function(err){
+        console.log(err);
+      }
+    });
+  });
+  
+
+    function edit_artical(){
+      id_artical=document.getElementById('id').value
+      document.location.href='../edit/'+id_artical
+    }
+  </script>
+
+</body>
+
+</html>

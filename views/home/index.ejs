@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<% include ../head/head.ejs %>
+
+<body>
+  <!-- Navbar (sit on top) -->
+  <% include ../nav/nav.ejs %>
+  <% include image_head.ejs %>
+
+  <div id="band" class="container text-center ">
+    <div class="row well shadow" style="padding: 3%;margin: 5%;background-color:#FFFFFF;">
+      <h2>ค้นหาบทความ</h2>
+      <div class="col-sm-12" style="padding-left: 10%;padding-right: 10%;margin-top: 2%;margin-bottom: 2%;">
+        <div class="col-sm-4 col-12">
+          <select class="form-control" id="search_type" onchange="change_type(this)">
+            <option value="all">ทั้งหมด</option>
+            <option value="news">ข่าวสาร</option>
+            <option value="normal">ทั่วไป</option>
+            <option value="analysis">บทวิเคราะห์ </option>
+            <option value="laws">กฎหมายเกี่ยวกับประกันภัย</option>
+          </select>
+        </div>
+        <div class="col-sm-8 col-12">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search"
+              oninput="w3.filterHTML('#allartical', '#hide_seach', this.value)">
+            <div class="input-group-btn">
+              <button class="btn btn-default" type="submit">
+                <i class="glyphicon glyphicon-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="w3-row" style="padding-left: 10%;padding-right: 10%">
+      <a href="javascript:void(0)" onclick="openCity(event, 'recommend');">
+        <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-yellow w3-Light Gray">
+          recommend</div>
+      </a>
+      <a href="javascript:void(0)" onclick="openCity(event, 'latest');">
+        <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding">latest</div>
+      </a>
+    </div>
+    <div id="allartical">
+      <% include recomment.ejs %>
+      <% include latest.ejs %>
+      <% include model.ejs %>
+    </div>
+
+
+
+
+
+  </div>
+
+
+  <!-- Footer -->
+  <% include ../head/foot.ejs %>
+
+  <script>
+    function get_id_artical(id) {
+      let id_artical = id;
+      $.ajax({
+        // Request method.
+        method: "POST",
+        // Request URL.
+        url: "/get_artical",
+        // Request params.
+        data: {
+          id_articals: id_artical
+        }
+      })
+        .done(function (data) {
+          let get_data = data
+          document.getElementById('id').value = get_data._id
+          document.getElementById('title').innerHTML = get_data.title
+          document.getElementById('sentence').innerHTML = get_data.body
+          searchPic = new Image();
+
+          document.getElementById("img_page").src = get_data.img_pro;
+
+          let recomment = get_data.recomment
+          let status = get_data.status
+          document.getElementById('type').innerHTML = set_type(get_data.type)
+
+          if (recomment == '0') {
+            document.getElementById('recomment').hidden = true
+          } else {
+            document.getElementById('recomment').hidden = false
+          }
+          document.getElementById('date_create').innerHTML = get_data.date
+
+          if (status == '0') {
+            $("#public").show();
+          } else {
+            $("#public").hide();
+          }
+        })
+        .fail(function (err) {
+          console.log('image delete problem: ' + JSON.stringify(err));
+        })
+    }
+
+    function set_type(type) {
+      if (type == 'news') {
+        return 'ข่าวสาร'
+      } else if (type == 'normal') {
+        return 'บทความทั่วไป'
+      } else if (type == 'analysis') {
+        return 'บทความวิเคราะห์'
+      } else if (type == 'laws') {
+        return 'บทความกฎหมายเกี่ยวกับประกันภัย'
+      } else return 0
+    }
+
+    function change_type(val) {
+      let type = val.value;
+      if (type == 'news') {
+        $('.news').show();
+        $('.normal').hide();
+        $('.analysis').hide();
+        $('.laws').hide();
+      } else if (type == 'normal') {
+        $('.news').hide();
+        $('.normal').show();
+        $('.analysis').hide();
+        $('.laws').hide();
+      } else if (type == 'analysis') {
+        $('.news').hide();
+        $('.normal').hide();
+        $('.analysis').show();
+        $('.laws').hide();
+      } else if (type == 'laws') {
+        $('.news').hide();
+        $('.normal').hide();
+        $('.analysis').hide();
+        $('.laws').show();
+      } else if (type == 'all') {
+        $('.news').show();
+        $('.normal').show();
+        $('.analysis').show();
+        $('.laws').show();
+      }
+    }
+
+
+  </script>
+</body>
+
+</html>

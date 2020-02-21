@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<% include ../head/head.ejs %>
+
+<body>
+  <!-- Navbar (sit on top) -->
+  <% include ../nav/nav.ejs %>
+
+  <form action="/submit_artical" id="submit_artical" enctype="multipart/form-data" name="submit_artical" method="POST">
+
+    <div class="container" style="margin-top: 7%;">
+    <div class="row well shadow" style="padding: 3%;margin: 5%;background-color:#FFFFFF;">
+      <h2>เขียนบทความ</h2>
+      <hr>
+      <div class="container-fluid">
+        <img id='imgupload' style="width: 100%; max-height: 400px" />
+        <i class="glyphicon glyphicon-camera btn btn-default btn-file w3-right">
+          <input type="file" id="imgInp" name="imgInp" accept="image/*" required>
+        </i>
+      </div>
+      <div style="padding: 3%">
+        <div class="row" style="margin-top: 3%;">
+          <div class="col-sm-4">
+            <h4>ชื่อบทความ : </h4>
+          </div>
+          <div class="col-sm-8">
+            <input type="text" class="form-control no-border input-lg" id="title_create" name="title_create" value=""
+              placeholder="ชื่ิอเรื่อง" required>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 3%;">
+          <div class="col-sm-4">
+            <h4>ประเภทของบทความ : </h4>
+          </div>
+          <div class="col-sm-4">
+            <select class="form-control" id="search_type" name="search_type">
+              <option value="news">ข่าวสาร</option>
+              <option value="normal">ทั่วไป</option>
+              <option value="analysis">บทวิเคราะห์ </option>
+              <option value="laws">กฎหมายเกี่ยวกับประกันภัย</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 3%;">
+          <div class="col-sm-4">
+            <h4>คำเกริ่น : </h4>
+          </div>
+          <div class="col-sm-8">
+            <input type="text" class="form-control no-border input-lg" id="short_text" name="short_text"  placeholder="คำโปรย"
+             required>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 3%;">
+          <div class="col-sm-4">
+            <h4>บทความ : </h4>
+          </div>
+        </div>
+      </div>
+      <div id="froala-editor" style="margin-top: 3%;">
+
+      </div>
+      <br />
+      <input type="text" id="egpreviewer" name="egpreviewer" style="display:none">
+      <div align="right">
+        <input type="checkbox" name="recomment" id="recomment" value="recomment" style="font-size: 20em" >    <i class="glyphicon glyphicon-star" style="color: #FFD355;margin-left: 1%;"></i>   recomment<br>
+      </div>
+     
+
+      <hr style="margin-top: 2%;">
+
+      <div class="col-sm-12">
+
+        <input type="text" id="state" name="state" style="display:none">
+
+        <div align="right">
+          <button type="button" class="btn btn-warning">Cancel</button>
+          <button type="button" class="btn btn-info" name="save" id="save" onclick="send_submit('save')">SAVE</button>
+          <button type="button" class="btn btn-info" name="save" id="save" onclick="send_submit('submit')">SUBMIT</button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </form>
+  <!-- Footer -->
+  <% include ../head/foot.ejs %>
+  <script>
+    $(document).ready(function () {
+      $(document).on('change', '.btn-file :file', function () {
+        var input = $(this),
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [label]);
+      });
+
+      $('.btn-file :file').on('fileselect', function (event, label) {
+
+        var input = $(this).parents('.input-group').find(':text'),
+          log = label;
+
+        if (input.length) {
+          input.val(log);
+        } else {
+          if (log) alert(log);
+        }
+      });
+      function readURL(input) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+
+          reader.onload = function (e) {
+            $('#imgupload').attr('src', e.target.result);
+          }
+
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      $("#imgInp").change(function () {
+        readURL(this);
+      });
+
+      var callback = function () {
+        var editor = this
+        document.getElementById('egpreviewer').value = editor.codeBeautifier.run(editor.html.get())
+
+      }
+
+      
+      let editor = new FroalaEditor('div#froala-editor', {
+        events: {
+          initialized: callback,
+          contentChanged: callback
+        }
+        ,
+        imageUploadURL: '/upload_image',
+        imageUploadParams: {
+          id: 'my_editor'
+        },
+        fileUploadURL: '/upload_file',
+        fileUploadParams: {
+          id: 'my_editor'
+        },
+        imageManagerLoadURL: '/load_images',
+        imageManagerDeleteURL: "/delete_image",
+        imageManagerDeleteMethod: "POST",
+        videoUploadURL: '/upload_video',
+      });
+
+
+
+      editor.events.on('froalaEditor.image.removed', function (e, editor, $img) {
+        $.ajax({
+          // Request method.
+          method: "POST",
+          // Request URL.
+          url: "/delete_image",
+          // Request params.
+          data: {
+            src: $img.attr('src')
+          }
+        })
+          .done(function (data) {
+            console.log('image was deleted');
+          })
+          .fail(function (err) {
+            console.log('image delete problem: ' + JSON.stringify(err));
+          })
+      });
+
+      editor.events.on('froalaEditor.video.removed', function (e, editor, $video) {
+        $.ajax({
+          // Request method.
+          method: "POST",
+          // Request URL.
+          url: "/delete_video",
+          // Request params.
+          data: {
+            src: $video.attr('src')
+          }
+        })
+          .done(function (data) {
+            console.log('video was deleted');
+          })
+          .fail(function (err) {
+            console.log('video delete problem: ' + JSON.stringify(err));
+          })
+      });
+      // Catch image removal from the editor.
+      editor.events.on('froalaEditor.file.unlink', function (e, editor, link) {
+        $.ajax({
+          // Request method.
+          method: "POST",
+          // Request URL.
+          url: "/delete_file",
+          // Request params.
+          data: {
+            src: link.getAttribute('href')
+          }
+        })
+          .done(function (data) {
+            console.log('file was deleted');
+          })
+          .fail(function (err) {
+            console.log('file delete problem: ' + JSON.stringify(err));
+          })
+      })
+    });
+
+
+    function send_submit(state) {
+      set_value = "0"
+      if (state == 'save') {
+        set_value = "0"
+      } else {
+        set_value = "1"
+      }
+      document.getElementById('state').value = set_value
+      var x = document.getElementsByName('submit_artical');
+      x[0].submit();
+
+    }
+  </script>
+
+</body>
+
+</html>
